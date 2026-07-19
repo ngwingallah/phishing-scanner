@@ -72,12 +72,3 @@ curl -X POST http://127.0.0.1:8000/scan \
   -H "Content-Type: application/json" \
   -d '{"url": "http://paypal-verify.secure-update.xyz@192.168.0.10/login"}'
 ```
-
-## Deploy on Render
-
-1. Push this repo to GitHub.
-2. New → Web Service → connect the repo.
-3. Build command: `pip install -r requirements.txt`
-4. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. (Optional) add a Render PostgreSQL instance and set `DATABASE_URL`;
-   the app falls back to SQLite if it isn't set.
