@@ -25,6 +25,23 @@ SUSPICIOUS_WORDS = {
     "login", "verify", "secure", "account", "update", "confirm",
     "bank", "password", "signin", "webscr", "ebayisapi", "wallet",
 }
+# Brands frequently impersonated, mapped to their real registered domains.
+KNOWN_BRANDS = {
+    "paypal": "paypal.com",
+    "google": "google.com",
+    "apple": "apple.com",
+    "microsoft": "microsoft.com",
+    "amazon": "amazon.com",
+    "facebook": "facebook.com",
+    "netflix": "netflix.com",
+    "instagram": "instagram.com",
+    "whatsapp": "whatsapp.com",
+    "mtn": "mtn.com",
+}
+# File extensions that are dangerous to download from a link.
+RISKY_EXTENSIONS = (".exe", ".scr", ".msi", ".apk", ".bat", ".zip", ".rar", ".js")
+# Ports that are normal for web traffic; anything else is worth flagging.
+STANDARD_PORTS = {80, 443, 8080}
 
 
 class IpAddressCheck(Check):
@@ -146,6 +163,44 @@ class NoHttpsCheck(Check):
         return self._outcome(False, "URL uses HTTPS.")
 
 
+class BrandImpersonationCheck(Check):
+    name = "Brand impersonation"
+    weight = 20
+
+    def evaluate(self, url: ParsedUrl) -> CheckOutcome:
+        haystack = f"{url.host}{url.path}".lower()
+        for brand, real_domain in KNOWN_BRANDS.items():
+            # Brand name appears somewhere, but the real domain is not the host.
+            if brand in haystack and url.registered_domain != real_domain:
+                return self._outcome(
+                    True,
+                    f"Mentions '{brand}' but the domain is not {real_domain}.",
+                )
+        return self._outcome(False, "No brand impersonation detected.")
+
+
+class SuspiciousFileExtensionCheck(Check):
+    name = "Dangerous file extension"
+    weight = 12
+
+    def evaluate(self, url: ParsedUrl) -> CheckOutcome:
+        path = url.path.lower()
+        for ext in RISKY_EXTENSIONS:
+            if path.endswith(ext):
+                return self._outcome(True, f"Link points to a '{ext}' file, risky to download.")
+        return self._outcome(False, "No dangerous file extension in the path.")
+
+
+class NonStandardPortCheck(Check):
+    name = "Non-standard port"
+    weight = 10
+
+    def evaluate(self, url: ParsedUrl) -> CheckOutcome:
+        if url.port is not None and url.port not in STANDARD_PORTS:
+            return self._outcome(True, f"Uses non-standard port {url.port}.")
+        return self._outcome(False, "Uses a standard web port.")
+
+
 def default_checks() -> list[Check]:
     """The standard rule set, in the order they appear in results."""
     return [
@@ -160,4 +215,7 @@ def default_checks() -> list[Check]:
         PunycodeCheck(),
         SuspiciousKeywordCheck(),
         NoHttpsCheck(),
+        BrandImpersonationCheck(),
+        SuspiciousFileExtensionCheck(),
+        NonStandardPortCheck(),
     ]

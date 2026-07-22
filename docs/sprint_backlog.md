@@ -12,7 +12,8 @@ Status: `To Do` / `In Progress` / `Done`.
 | T-1  | Init repo, project structure, `.gitignore` | PB-4 | Sun | Done |
 | T-2  | `ParsedUrl` value object | PB-1 | Sun | Done |
 | T-3  | Abstract `Check` + `CheckOutcome` | PB-4 | Sun | Done |
-| T-4  | Concrete heuristic checks (11 rules) | PB-3 | Sun/Mon | In Progress |
+| T-4  | Concrete heuristic checks (14 rules) | PB-3 | Sun/Mon | Done |
+| T-4b | Automated test suite (21 pytest tests) | PB-11 | Mon | Done |
 | T-5  | `RiskAnalyzer` scoring + verdict | PB-2 | Sun | Done |
 | T-6  | `Scan` model + `database.py` | PB-5 | Sun | Done |
 | T-7  | `ScanRepository` | PB-5 | Sun | Done |
@@ -26,3 +27,8 @@ Status: `To Do` / `In Progress` / `Done`.
 | T-15 | Project report | — | Thu | To Do |
 | T-16 | PowerPoint (≤20 slides) | — | Thu | To Do |
 | T-17 | Rehearse + submit | — | Fri | To Do |
+
+**Note on solo scrum:** because this is a sanctioned solo resit, the
+five-member team structure is replaced by one person rotating roles. Scrum
+discipline is still applied: a groomed product backlog, this sprint
+backlog, daily task movement, and a review/retro captured in the report.

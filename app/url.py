@@ -19,6 +19,7 @@ class ParsedUrl:
     host: str = ""
     path: str = ""
     query: str = ""
+    port: int | None = None
 
     @classmethod
     def parse(cls, raw: str) -> "ParsedUrl":
@@ -27,12 +28,18 @@ class ParsedUrl:
         if "://" not in candidate:
             candidate = "http://" + candidate
         parsed = urlparse(candidate)
+        # parsed.port raises ValueError on a malformed port; treat as none.
+        try:
+            port = parsed.port
+        except ValueError:
+            port = None
         return cls(
             raw=(raw or "").strip(),
             scheme=parsed.scheme.lower(),
             host=(parsed.hostname or "").lower(),
             path=parsed.path or "",
             query=parsed.query or "",
+            port=port,
         )
 
     @property
@@ -44,6 +51,15 @@ class ParsedUrl:
     def tld(self) -> str:
         """The top-level domain, e.g. 'com'. Empty for bare hosts/IPs."""
         return self.labels[-1] if len(self.labels) >= 2 else ""
+
+    @property
+    def registered_domain(self) -> str:
+        """A rough registered domain: the last two labels, e.g. 'google.com'.
+
+        Not a full public-suffix parse, but enough to tell whether a brand
+        name sits in the real domain or only in a subdomain/path.
+        """
+        return ".".join(self.labels[-2:]) if len(self.labels) >= 2 else self.host
 
     @property
     def length(self) -> int:
