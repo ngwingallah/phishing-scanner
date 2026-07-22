@@ -1,4 +1,4 @@
-# Render Blueprint — deploys PhishGuard as a free web service.
+# Render Blueprint deploys PhishGuard as a free web service.
 # Render reads this automatically when you create a Blueprint from the repo.
 services:
   - type: web

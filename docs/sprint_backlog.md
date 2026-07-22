@@ -29,8 +29,3 @@ Status: `To Do` / `In Progress` / `Done`.
 | T-15 | Project report | — | Thu | To Do |
 | T-16 | PowerPoint (≤20 slides) | — | Thu | To Do |
 | T-17 | Rehearse + submit | — | Fri | To Do |
-
-**Note on solo scrum:** because this is a sanctioned solo resit, the
-five-member team structure is replaced by one person rotating roles. Scrum
-discipline is still applied: a groomed product backlog, this sprint
-backlog, daily task movement, and a review/retro captured in the report.

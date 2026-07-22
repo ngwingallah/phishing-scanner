@@ -1,6 +1,6 @@
 """Unit tests for individual checks and the risk analyzer.
 
-These need no database — they test the pure business logic directly.
+These need no database, they test the pure business logic directly.
 """
 
 from app.analyzer import RiskAnalyzer

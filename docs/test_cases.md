@@ -1,10 +1,5 @@
 # Test Case Document — PhishGuard
 
-**Course:** SEN2241 — Object Oriented Analysis, Design and Implementation
-**System under test:** PhishGuard heuristic phishing-URL scanner
-**Test date:** 22 July 2026
-**Automated result:** 27 / 27 passing (`pytest -q`)
-
 Two kinds of test are recorded here:
 
 - **Automated (TC-A…)** — executed by the pytest suite in `tests/`. The

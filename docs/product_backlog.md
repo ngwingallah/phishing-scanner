@@ -22,6 +22,3 @@ points (relative effort).
 | PB-11| Quality     | As a maintainer, I want a test-case document so that behaviour is verified. | Should | 2 |
 | PB-12| Scanning    | As a maintainer, I want the risk weights tunable so that scoring can be refined. | Could | 2 |
 | PB-13| Scanning    | As a user, I could get an ML-based score later so that detection improves beyond heuristics. | Won't (this release) | 8 |
-
-**Definition of Done:** code committed to GitHub, endpoint works in
-Swagger, result persisted, and (where relevant) visible in the frontend.
