@@ -37,9 +37,20 @@ app/
   repository.py   ScanRepository (data access)
   schemas.py      Pydantic request/response models
   database.py     engine + session
+  static/
+    index.html    the web frontend (no build step)
 docs/
   product_backlog.md
   sprint_backlog.md
+  CODE_WALKTHROUGH.md
+tests/            pytest suite (24 tests)
+```
+
+## Run the tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
 ```
 
 ## Run locally
@@ -53,17 +64,20 @@ uvicorn app.main:app --reload
 
 Then open:
 
+- The app: http://127.0.0.1:8000
 - Swagger UI: http://127.0.0.1:8000/docs
 - ReDoc: http://127.0.0.1:8000/redoc
 
 ## API
 
-| Method | Path           | Purpose                       |
-|--------|----------------|-------------------------------|
-| POST   | `/scan`        | Analyze a URL, save the result|
-| GET    | `/scans`       | List recent scans             |
-| GET    | `/scans/{id}`  | Fetch one scan                |
-| GET    | `/health`      | Health check                  |
+| Method | Path           | Purpose                         |
+|--------|----------------|---------------------------------|
+| GET    | `/`            | The scanner web page            |
+| POST   | `/scan`        | Analyze a URL, save the result  |
+| GET    | `/scans`       | List recent scans               |
+| GET    | `/scans/{id}`  | Fetch one scan                  |
+| GET    | `/checks`      | List all heuristic rules        |
+| GET    | `/health`      | Health check                    |
 
 Example:
 

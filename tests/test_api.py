@@ -5,6 +5,27 @@ def test_health(client):
     assert client.get("/health").status_code == 200
 
 
+def test_checks_endpoint_lists_the_rule_set(client):
+    r = client.get("/checks")
+    assert r.status_code == 200
+    rules = r.json()
+    assert len(rules) == 14
+    assert all("name" in rule and "weight" in rule for rule in rules)
+
+
+def test_root_serves_the_frontend(client):
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "PhishGuard" in r.text
+
+
+def test_flags_include_points(client):
+    r = client.post("/scan", json={"url": "http://192.168.0.1/login.exe"})
+    flags = r.json()["flags"]
+    assert flags, "expected this URL to trigger at least one rule"
+    assert all(isinstance(f["points"], int) and f["points"] > 0 for f in flags)
+
+
 def test_scan_returns_a_verdict(client):
     r = client.post("/scan", json={"url": "http://paypal.secure-login.xyz@1.2.3.4/verify"})
     assert r.status_code == 200

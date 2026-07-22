@@ -18,6 +18,16 @@ class ScanRequest(BaseModel):
 class FlagOut(BaseModel):
     name: str
     reason: str
+    # Points this check contributed. Defaults to 0 for rows saved before
+    # points were recorded.
+    points: int = 0
+
+
+class CheckOut(BaseModel):
+    """One rule in the rule set, exposed so clients can show the full catalogue."""
+
+    name: str
+    weight: int
 
 
 class ScanOut(BaseModel):

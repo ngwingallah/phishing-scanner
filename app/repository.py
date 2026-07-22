@@ -22,7 +22,10 @@ class ScanRepository:
             url=report.url,
             score=report.score,
             verdict=report.verdict,
-            flags=[{"name": o.name, "reason": o.reason} for o in report.triggered],
+            flags=[
+                {"name": o.name, "reason": o.reason, "points": o.points}
+                for o in report.triggered
+            ],
         )
         self._db.add(scan)
         self._db.commit()

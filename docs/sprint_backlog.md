@@ -19,8 +19,9 @@ Status: `To Do` / `In Progress` / `Done`.
 | T-7  | `ScanRepository` | PB-5 | Sun | Done |
 | T-8  | `POST /scan`, `GET /scans`, `GET /scans/{id}` | PB-1, PB-6 | Sun/Mon | Done |
 | T-9  | Verify Swagger docs at `/docs` | PB-7 | Mon | Done |
-| T-10 | Frontend: scan form + result view | PB-8 | Tue | To Do |
-| T-11 | Frontend: history table | PB-9 | Tue | To Do |
+| T-10 | Frontend: scan form + result view | PB-8 | Tue | Done |
+| T-11 | Frontend: history table | PB-9 | Tue | Done |
+| T-11b| `GET /checks` rule-catalogue endpoint | PB-7 | Tue | Done |
 | T-12 | UML: use case, class, object, 5 sequence diagrams | — | Wed | To Do |
 | T-13 | Deploy to Render | PB-10 | Wed | To Do |
 | T-14 | Test-case document | PB-11 | Wed | To Do |
