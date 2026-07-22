@@ -8,8 +8,9 @@ RiskAnalyzer and persistence to ScanRepository.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -17,12 +18,13 @@ from sqlalchemy.orm import Session
 
 from .analyzer import RiskAnalyzer
 from .checks.rules import default_checks
-from .database import Base, engine, get_db
+from .database import Base, engine, ensure_schema, get_db
 from .repository import ScanRepository
 from .schemas import CheckOut, ScanOut, ScanRequest
 
 # Create tables on startup (fine for a project of this size).
 Base.metadata.create_all(bind=engine)
+ensure_schema()
 
 app = FastAPI(
     title="PhishGuard API",
@@ -39,6 +41,21 @@ app.add_middleware(
 )
 
 analyzer = RiskAnalyzer()
+
+# Requests without a session header fall into one shared bucket, so the API
+# stays usable from Swagger or curl without extra setup.
+ANONYMOUS_SESSION = "anonymous"
+
+
+def current_session(
+    x_session_id: Annotated[str | None, Header(alias="X-Session-Id")] = None,
+) -> str:
+    """Identify the caller by an anonymous, browser-generated session id.
+
+    No account, no personal data — just an opaque string that scopes a
+    visitor's history to their own browser.
+    """
+    return (x_session_id or "").strip()[:64] or ANONYMOUS_SESSION
 
 # --- Frontend -----------------------------------------------------------
 # Mounted under /static so it never shadows the API routes below.
@@ -72,19 +89,41 @@ def list_checks() -> list[CheckOut]:
 
 
 @app.post("/scan", response_model=ScanOut, summary="Scan a URL for phishing risk", tags=["Scans"])
-def scan_url(payload: ScanRequest, db: Session = Depends(get_db)) -> ScanOut:
+def scan_url(
+    payload: ScanRequest,
+    db: Session = Depends(get_db),
+    session_id: str = Depends(current_session),
+) -> ScanOut:
     report = analyzer.analyze(payload.url)
-    return ScanRepository(db).save(report)
+    return ScanRepository(db, session_id).save(report)
 
 
-@app.get("/scans", response_model=list[ScanOut], summary="List recent scans", tags=["Scans"])
-def list_scans(db: Session = Depends(get_db)) -> list[ScanOut]:
-    return ScanRepository(db).list()
+@app.get(
+    "/scans",
+    response_model=list[ScanOut],
+    summary="List your recent scans",
+    tags=["Scans"],
+)
+def list_scans(
+    db: Session = Depends(get_db),
+    session_id: str = Depends(current_session),
+) -> list[ScanOut]:
+    """Only returns scans belonging to the calling session."""
+    return ScanRepository(db, session_id).list()
 
 
-@app.get("/scans/{scan_id}", response_model=ScanOut, summary="Get one scan by id", tags=["Scans"])
-def get_scan(scan_id: int, db: Session = Depends(get_db)) -> ScanOut:
-    scan = ScanRepository(db).get(scan_id)
+@app.get(
+    "/scans/{scan_id}",
+    response_model=ScanOut,
+    summary="Get one of your scans by id",
+    tags=["Scans"],
+)
+def get_scan(
+    scan_id: int,
+    db: Session = Depends(get_db),
+    session_id: str = Depends(current_session),
+) -> ScanOut:
+    scan = ScanRepository(db, session_id).get(scan_id)
     if scan is None:
         raise HTTPException(status_code=404, detail="Scan not found")
     return scan

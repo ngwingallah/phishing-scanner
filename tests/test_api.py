@@ -55,3 +55,38 @@ def test_missing_scan_returns_404(client):
 def test_missing_url_field_is_rejected(client):
     # Pydantic should reject a body without the required 'url'.
     assert client.post("/scan", json={}).status_code == 422
+
+
+# --- session isolation ---------------------------------------------------
+
+def test_history_is_scoped_to_the_session(client):
+    a = {"X-Session-Id": "session-aaa"}
+    b = {"X-Session-Id": "session-bbb"}
+
+    client.post("/scan", json={"url": "https://alpha-only.example.com"}, headers=a)
+    client.post("/scan", json={"url": "https://beta-only.example.com"}, headers=b)
+
+    a_urls = [row["url"] for row in client.get("/scans", headers=a).json()]
+    b_urls = [row["url"] for row in client.get("/scans", headers=b).json()]
+
+    assert "https://alpha-only.example.com" in a_urls
+    assert "https://beta-only.example.com" not in a_urls
+    assert "https://beta-only.example.com" in b_urls
+    assert "https://alpha-only.example.com" not in b_urls
+
+
+def test_cannot_read_another_sessions_scan(client):
+    owner = {"X-Session-Id": "owner-session"}
+    other = {"X-Session-Id": "other-session"}
+
+    created = client.post(
+        "/scan", json={"url": "https://private.example.com"}, headers=owner
+    ).json()
+
+    assert client.get(f"/scans/{created['id']}", headers=owner).status_code == 200
+    assert client.get(f"/scans/{created['id']}", headers=other).status_code == 404
+
+
+def test_new_session_starts_with_empty_history(client):
+    fresh = {"X-Session-Id": "brand-new-session"}
+    assert client.get("/scans", headers=fresh).json() == []

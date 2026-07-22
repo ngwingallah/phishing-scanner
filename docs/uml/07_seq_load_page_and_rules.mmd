@@ -1,0 +1,29 @@
+%% Sequence 4 - Use case: Load the scanner page and browse the rule catalogue
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant UI as Browser
+    participant API as FastAPI route
+    participant FS as Static files
+    participant REG as default_checks registry
+
+    U->>UI: navigate to /
+    UI->>API: GET /
+    API->>FS: read index.html
+    FS-->>API: file contents
+    API-->>UI: 200 OK, HTML page
+
+    par page initialisation
+        UI->>API: GET /checks
+        API->>REG: default_checks()
+        REG-->>API: 14 Check objects
+        API->>API: map each to CheckOut(name, weight)
+        API-->>UI: 200 OK, 14 rules
+        UI->>UI: show rule count in masthead
+    and
+        UI->>API: GET /scans
+        API-->>UI: 200 OK, recent scans
+        UI->>UI: fill history table
+    end
+
+    UI-->>U: page ready for input

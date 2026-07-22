@@ -43,6 +43,9 @@ docs/
   product_backlog.md
   sprint_backlog.md
   CODE_WALKTHROUGH.md
+  test_cases.md
+  DEPLOYMENT.md
+  uml/            8 UML diagrams + diagrams.html viewer
 tests/            pytest suite (24 tests)
 ```
 
@@ -78,6 +81,10 @@ Then open:
 | GET    | `/scans/{id}`  | Fetch one scan                  |
 | GET    | `/checks`      | List all heuristic rules        |
 | GET    | `/health`      | Health check                    |
+
+Requests to `/scan` and `/scans` may carry an `X-Session-Id` header. The web
+page generates one per browser so each visitor sees only their own history;
+requests without it share an `anonymous` bucket.
 
 Example:
 

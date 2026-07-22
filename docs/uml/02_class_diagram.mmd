@@ -1,0 +1,107 @@
+%% PhishGuard - Class Diagram
+classDiagram
+    direction TB
+
+    class ParsedUrl {
+        +str raw
+        +str scheme
+        +str host
+        +str path
+        +str query
+        +int port
+        +parse(raw) ParsedUrl$
+        +labels() list~str~
+        +tld() str
+        +registered_domain() str
+        +length() int
+    }
+
+    class Check {
+        <<abstract>>
+        +str name
+        +int weight
+        +evaluate(url) CheckOutcome*
+        #_outcome(triggered, reason) CheckOutcome
+    }
+
+    class CheckOutcome {
+        +str name
+        +bool triggered
+        +int points
+        +str reason
+    }
+
+    class RiskAnalyzer {
+        +int SAFE_MAX
+        +int SUSPICIOUS_MAX
+        -list~Check~ _checks
+        -int _max_score
+        +analyze(raw_url) ScanReport
+        -_verdict(score) str
+    }
+
+    class ScanReport {
+        +str url
+        +int score
+        +str verdict
+        +list~CheckOutcome~ outcomes
+        +triggered() list~CheckOutcome~
+    }
+
+    class Scan {
+        <<entity>>
+        +int id
+        +str session_id
+        +str url
+        +int score
+        +str verdict
+        +JSON flags
+        +datetime created_at
+    }
+
+    class ScanRepository {
+        -Session _db
+        -str _session_id
+        +save(report) Scan
+        +list(limit) list~Scan~
+        +get(scan_id) Scan
+    }
+
+    class IpAddressCheck
+    class UrlLengthCheck
+    class SubdomainCheck
+    class AtSymbolCheck
+    class RiskyTldCheck
+    class HyphenCheck
+    class DeceptiveHttpsCheck
+    class ShortenerCheck
+    class PunycodeCheck
+    class SuspiciousKeywordCheck
+    class NoHttpsCheck
+    class BrandImpersonationCheck
+    class SuspiciousFileExtensionCheck
+    class NonStandardPortCheck
+
+    Check <|-- IpAddressCheck
+    Check <|-- UrlLengthCheck
+    Check <|-- SubdomainCheck
+    Check <|-- AtSymbolCheck
+    Check <|-- RiskyTldCheck
+    Check <|-- HyphenCheck
+    Check <|-- DeceptiveHttpsCheck
+    Check <|-- ShortenerCheck
+    Check <|-- PunycodeCheck
+    Check <|-- SuspiciousKeywordCheck
+    Check <|-- NoHttpsCheck
+    Check <|-- BrandImpersonationCheck
+    Check <|-- SuspiciousFileExtensionCheck
+    Check <|-- NonStandardPortCheck
+
+    RiskAnalyzer o-- "1..*" Check : composes
+    RiskAnalyzer ..> ParsedUrl : parses with
+    RiskAnalyzer ..> ScanReport : produces
+    Check ..> ParsedUrl : reads
+    Check ..> CheckOutcome : creates
+    ScanReport *-- "0..*" CheckOutcome : contains
+    ScanRepository ..> ScanReport : consumes
+    ScanRepository ..> Scan : persists

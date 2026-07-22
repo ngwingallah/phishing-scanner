@@ -1,0 +1,23 @@
+%% Sequence 3 - Use case: View a single past scan
+%% Shows both the success path and the not-found alternative flow.
+sequenceDiagram
+    autonumber
+    actor D as Developer
+    participant API as FastAPI route
+    participant RP as ScanRepository
+    participant DB as Database
+
+    D->>API: GET /scans/{id} + X-Session-Id
+    API->>RP: ScanRepository(db, session_id).get(scan_id)
+    RP->>DB: SELECT * FROM scans WHERE id = ? AND session_id = ?
+
+    alt scan exists and belongs to this session
+        DB-->>RP: row
+        RP-->>API: Scan entity
+        API-->>D: 200 OK, ScanOut JSON
+    else missing, or owned by someone else
+        DB-->>RP: no row
+        RP-->>API: None
+        API->>API: raise HTTPException(404)
+        API-->>D: 404 Not Found, {"detail": "Scan not found"}
+    end

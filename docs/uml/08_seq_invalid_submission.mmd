@@ -1,0 +1,23 @@
+%% Sequence 5 - Use case: Reject an invalid submission (exception flow)
+%% Two failure paths: caught in the browser, and caught by the API contract.
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant UI as Browser page
+    participant API as FastAPI route
+    participant SC as ScanRequest schema
+    participant AN as RiskAnalyzer
+
+    U->>UI: click Scan with an empty field
+    UI->>UI: validate input is not blank
+    UI-->>U: "Enter a URL to scan."
+    Note over UI,API: no request is sent - fails fast in the client
+
+    U->>UI: submit a malformed request body
+    UI->>API: POST /scan {}
+    API->>SC: validate against ScanRequest
+    SC-->>API: ValidationError - 'url' field required
+    API-->>UI: 422 Unprocessable Entity
+    Note over API,AN: RiskAnalyzer is never reached
+    UI->>UI: catch non-OK response
+    UI-->>U: "Could not reach the scanner."

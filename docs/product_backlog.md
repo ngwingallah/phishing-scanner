@@ -14,6 +14,7 @@ points (relative effort).
 | PB-4 | Scanning    | As a maintainer, I want each heuristic to be its own class so that I can add rules without breaking others. | Must | 3 |
 | PB-5 | History     | As a user, I want my past scans stored so that I can review them later. | Must | 3 |
 | PB-6 | History     | As a user, I want to fetch a single past scan by id so that I can share or revisit it. | Should | 2 |
+| PB-14| Privacy     | As a user, I want to see only my own scan history so that other visitors cannot see the links I checked. | Must | 3 |
 | PB-7 | API / Docs  | As a developer, I want auto-generated Swagger docs so that the API is easy to consume. | Must | 2 |
 | PB-8 | Frontend    | As a user, I want a simple web page to scan a URL so that I don't need the API directly. | Must | 5 |
 | PB-9 | Frontend    | As a user, I want to see my scan history in the page so that I can browse results visually. | Should | 3 |

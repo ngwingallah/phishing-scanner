@@ -169,6 +169,10 @@
 
   /* ---- history ---- */
   .history{margin-top:40px}
+  .scope-note{
+    font-family:var(--mono);font-size:11px;color:var(--muted);
+    margin:-4px 0 12px;
+  }
   table{width:100%;border-collapse:collapse;font-size:13.5px}
   th{
     font-size:10.5px;font-weight:600;text-transform:uppercase;
@@ -183,13 +187,6 @@
     font-family:var(--mono);font-size:12.5px;color:var(--muted);
     padding:14px 0;
   }
-
-  footer{
-    margin-top:44px;padding-top:14px;border-top:1px solid var(--rule);
-    font-family:var(--mono);font-size:11px;color:var(--muted);
-    display:flex;gap:16px;flex-wrap:wrap;
-  }
-  footer a{color:var(--plate)}
 
   @media (prefers-reduced-motion:reduce){
     .ledger div{transition:none}
@@ -248,13 +245,9 @@
 
   <section class="history">
     <span class="eyebrow">Recent scans</span>
+    <p class="scope-note">Only scans made in this browser.</p>
     <div id="historyBox"></div>
   </section>
-
-  <footer>
-    <span>SEN2241 · Object Oriented Analysis, Design &amp; Implementation</span>
-    <a href="/docs">API documentation →</a>
-  </footer>
 
 </div>
 
@@ -263,6 +256,34 @@ const $ = (id) => document.getElementById(id);
 const VERDICT_CLASS = { Safe:'v-safe', Suspicious:'v-suspicious', Dangerous:'v-dangerous' };
 const VERDICT_VAR  = { Safe:'--safe', Suspicious:'--suspicious', Dangerous:'--danger' };
 let totalRules = null;
+
+/* Anonymous per-browser identity so each visitor sees only their own
+   history. No account and no personal data — just an opaque random id
+   kept in this browser. Falls back to a per-tab id if storage is blocked. */
+const SESSION_KEY = 'phishguard.session';
+let fallbackSession = null;
+
+function newId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'sid-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+}
+
+function sessionId() {
+  try {
+    let id = localStorage.getItem(SESSION_KEY);
+    if (!id) { id = newId(); localStorage.setItem(SESSION_KEY, id); }
+    return id;
+  } catch {
+    if (!fallbackSession) fallbackSession = newId();
+    return fallbackSession;
+  }
+}
+
+/* Every call that touches scan data carries the session header. */
+function api(path, options = {}) {
+  const headers = Object.assign({ 'X-Session-Id': sessionId() }, options.headers || {});
+  return fetch(path, Object.assign({}, options, { headers }));
+}
 
 /* Split the URL for display only. The authoritative parsing lives server-side
    in ParsedUrl; this is purely presentational. */
@@ -362,7 +383,7 @@ function renderHistory(rows) {
 
 async function loadHistory() {
   try {
-    const res = await fetch('/scans');
+    const res = await api('/scans');
     if (!res.ok) throw new Error();
     renderHistory(await res.json());
   } catch {
@@ -389,7 +410,7 @@ async function scan() {
   const btn = $('go');
   btn.disabled = true; btn.textContent = 'Scanning';
   try {
-    const res = await fetch('/scan', {
+    const res = await api('/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })

@@ -1,0 +1,82 @@
+%% PhishGuard - Object Diagram
+%% A real runtime snapshot: scanning the mobile-money lure sample,
+%% which scores 60 and is classified Dangerous.
+classDiagram
+    direction TB
+
+    class theUrl["specimen : ParsedUrl"] {
+        raw = "http://mtn-mobilemoney.account-verify.top/wallet/update.apk"
+        scheme = "http"
+        host = "mtn-mobilemoney.account-verify.top"
+        path = "/wallet/update.apk"
+        port = None
+    }
+
+    class analyzer["analyzer : RiskAnalyzer"] {
+        SAFE_MAX = 20
+        SUSPICIOUS_MAX = 45
+        _max_score = 100
+        _checks = 14 Check objects
+    }
+
+    class brandCheck["brandCheck : BrandImpersonationCheck"] {
+        name = "Brand impersonation"
+        weight = 20
+    }
+
+    class tldCheck["tldCheck : RiskyTldCheck"] {
+        name = "Risky TLD"
+        weight = 12
+    }
+
+    class extCheck["extCheck : SuspiciousFileExtensionCheck"] {
+        name = "Dangerous file extension"
+        weight = 12
+    }
+
+    class o1["o1 : CheckOutcome"] {
+        name = "Brand impersonation"
+        triggered = True
+        points = 20
+    }
+
+    class o2["o2 : CheckOutcome"] {
+        name = "Risky TLD"
+        triggered = True
+        points = 12
+    }
+
+    class o3["o3 : CheckOutcome"] {
+        name = "Dangerous file extension"
+        triggered = True
+        points = 12
+    }
+
+    class report["report : ScanReport"] {
+        score = 60
+        verdict = "Dangerous"
+        outcomes = 14 CheckOutcome objects
+        triggered = 5 of them
+    }
+
+    class scanRow["scan1 : Scan"] {
+        id = 1
+        session_id = "8f3c-…-a91d"
+        score = 60
+        verdict = "Dangerous"
+        flags = 5 entries
+        created_at = 2026-07-22T07:44
+    }
+
+    analyzer --> theUrl : reads
+    analyzer --> brandCheck : runs
+    analyzer --> tldCheck : runs
+    analyzer --> extCheck : runs
+    brandCheck --> o1 : produced
+    tldCheck --> o2 : produced
+    extCheck --> o3 : produced
+    report --> o1 : contains
+    report --> o2 : contains
+    report --> o3 : contains
+    analyzer --> report : produced
+    report --> scanRow : saved as

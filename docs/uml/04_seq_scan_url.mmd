@@ -1,0 +1,38 @@
+%% Sequence 1 - Use case: Scan a URL (primary flow)
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant UI as Browser page
+    participant API as FastAPI route
+    participant SC as ScanRequest schema
+    participant AN as RiskAnalyzer
+    participant PU as ParsedUrl
+    participant CK as Check subclass
+    participant RP as ScanRepository
+    participant DB as Database
+
+    U->>UI: enter URL, click Scan
+    UI->>API: POST /scan {url} + X-Session-Id
+    API->>SC: validate request body
+    SC-->>API: valid ScanRequest
+    API->>AN: analyze(url)
+    AN->>PU: parse(raw_url)
+    PU-->>AN: ParsedUrl
+
+    loop for each of the 14 checks
+        AN->>CK: evaluate(parsed_url)
+        CK-->>AN: CheckOutcome(triggered, points, reason)
+    end
+
+    AN->>AN: sum points, cap at 100
+    AN->>AN: _verdict(score)
+    AN-->>API: ScanReport
+
+    API->>API: current_session(header)
+    API->>RP: ScanRepository(db, session_id).save(report)
+    RP->>DB: INSERT INTO scans (session_id, ...)
+    DB-->>RP: row id
+    RP-->>API: Scan entity
+    API-->>UI: 200 OK, ScanOut JSON
+    UI->>UI: render specimen, ledger, signals
+    UI-->>U: verdict and reasons

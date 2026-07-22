@@ -22,9 +22,10 @@ Status: `To Do` / `In Progress` / `Done`.
 | T-10 | Frontend: scan form + result view | PB-8 | Tue | Done |
 | T-11 | Frontend: history table | PB-9 | Tue | Done |
 | T-11b| `GET /checks` rule-catalogue endpoint | PB-7 | Tue | Done |
-| T-12 | UML: use case, class, object, 5 sequence diagrams | — | Wed | To Do |
-| T-13 | Deploy to Render | PB-10 | Wed | To Do |
-| T-14 | Test-case document | PB-11 | Wed | To Do |
+| T-11c| Per-session private history + schema migration | PB-14 | Wed | Done |
+| T-12 | UML: use case, class, object, 5 sequence diagrams | — | Wed | Done |
+| T-13 | Deploy to Render (config + guide ready; deploy to run) | PB-10 | Wed | In Progress |
+| T-14 | Test-case document (38 cases) | PB-11 | Wed | Done |
 | T-15 | Project report | — | Thu | To Do |
 | T-16 | PowerPoint (≤20 slides) | — | Thu | To Do |
 | T-17 | Rehearse + submit | — | Fri | To Do |

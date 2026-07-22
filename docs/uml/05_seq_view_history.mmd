@@ -1,0 +1,23 @@
+%% Sequence 2 - Use case: View scan history
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant UI as Browser page
+    participant API as FastAPI route
+    participant DEP as get_db dependency
+    participant RP as ScanRepository
+    participant DB as Database
+
+    U->>UI: open the scanner page
+    UI->>API: GET /scans + X-Session-Id
+    API->>DEP: request a session
+    DEP-->>API: Session
+    API->>API: current_session(header)
+    API->>RP: ScanRepository(db, session_id).list(50)
+    RP->>DB: SELECT * FROM scans WHERE session_id = ? ORDER BY created_at DESC
+    DB-->>RP: rows
+    RP-->>API: list of Scan entities
+    API-->>UI: 200 OK, list of ScanOut
+    UI->>UI: build history table
+    UI-->>U: recent scans displayed
+    API->>DEP: close session

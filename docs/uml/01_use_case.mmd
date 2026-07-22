@@ -1,0 +1,36 @@
+%% PhishGuard - Use Case Diagram
+flowchart LR
+    user["User"]
+    dev["Developer / Integrator"]
+
+    subgraph SYS["PhishGuard System"]
+        direction TB
+        uc1(("Scan a URL"))
+        uc2(("View risk verdict<br/>and reasons"))
+        uc3(("View scan history"))
+        uc4(("View a single<br/>past scan"))
+        uc5(("Browse rule<br/>catalogue"))
+        uc6(("Read API<br/>documentation"))
+        uc7(("Evaluate<br/>heuristic rules"))
+        uc8(("Persist<br/>scan result"))
+        uc9(("Parse URL into<br/>components"))
+    end
+
+    user --- uc1
+    user --- uc2
+    user --- uc3
+    user --- uc4
+    dev --- uc5
+    dev --- uc6
+    dev --- uc1
+
+    uc1 -. "«include»" .-> uc7
+    uc1 -. "«include»" .-> uc8
+    uc1 -. "«include»" .-> uc9
+    uc7 -. "«include»" .-> uc9
+    uc2 -. "«extend»" .-> uc1
+
+    classDef actor fill:#1F3A5F,stroke:#12171C,color:#ffffff,stroke-width:1px
+    classDef usecase fill:#F8FAFB,stroke:#5C6873,color:#12171C
+    class user,dev actor
+    class uc1,uc2,uc3,uc4,uc5,uc6,uc7,uc8,uc9 usecase
