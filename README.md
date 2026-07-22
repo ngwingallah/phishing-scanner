@@ -1,3 +1,13 @@
+---
+title: PhishGuard
+emoji: 🛡️
+colorFrom: blue
+colorTo: gray
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # PhishGuard: Heuristic Phishing URL Scanner
 
 A small web service that scores a URL for phishing risk using a set of
